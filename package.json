@@ -1,0 +1,14 @@
+{
+  "name": "amadeus-node-getting-started",
+  "version": "1.0.0",
+  "description": "Get started with Node SDK",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Amadeus for Developers",
+  "license": "MIT",
+  "dependencies": {
+    "amadeus": "^8.0.0"
+  }
+}
