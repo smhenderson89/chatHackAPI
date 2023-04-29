@@ -4,14 +4,19 @@ require('dotenv').config()
 // Boilerplate info
 const express = require('express');
 var cors = require('cors');
+// var bodyParser =  require('body-parser')
 app = express();
 
+// Body Parser
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// Console log hosting info
 var hostname = process.env.YOUR_HOST || "127.0.0.1";
 var PORT = process.env.PORT || 4000;
-// Console log hosting info
+
 
 // CORS
-
 app.use(cors())
 app.options('*', cors(
   {origin: "http://127.0.0.1:5500"}
@@ -21,7 +26,7 @@ app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
-app.use(express.json())
+
 
 // Amadeus Info
 var Amadeus = require('amadeus');
@@ -31,19 +36,24 @@ var amadeus = new Amadeus({
     clientSecret: process.env.AMADEUS_CLIENT_SECRET
 });
 
-// Routing Brances
-const testRoute = require('./routes/routeTest')
-const inspiration = require('./routes/inspriation')
-
 app.get('/', (req, res) => {
     res.send('Hello World!')
 })
 
-app.get('/function', (req, res) => {
-    airportCode = req.body.code
-    date = req.body.date
-    console.log(`DEBUG: Received paramaters ${airportCode}, ${date}`);
-    inspirationFunc(airportCode, date)
+app.get('/test', (req, res) => {
+    res.send('This is a test')
+})
+
+// Test arguments
+app.post('/body', (req, res) => {
+    var bodyTest = req.body
+    console.log(bodyTest);
+});
+
+app.get('/nearbyAirport', (req, res) => {
+    console.log(req.body);
+    let city = req.body.city
+    nearbyAirport(city)
 })
 
 app.get('/cheapest', (req, res) => {
@@ -54,21 +64,25 @@ app.listen(PORT, hostname, (req, res) => {
     console.log(`Server running at http://${hostname}:${PORT}/`);
 })
 
+function nearbyAirport(location) {
 
-function inspirationFunc(airportCode, date) {
-    // find flights leaving from an aiport
-    /* Example:         
-        airportCode: 'SAN',
-        date: '2023-09-01' */
-    amadeus.airport.predictions.onTime.get({
-        airportCode: airportCode,
-        date: date
+    console.log(`Searched City Name: ${location}`)
+
+    // Which airport is nearby enter city name 
+    amadeus.referenceData.locations.get({
+    keyword: location,
+    subType: Amadeus.location.airport
     }).then(function (response) {
-    console.log(response);
+        let data = response.data[0];
+        let airCode = data.iataCode;
+        let airName = data.name
+        console.log(`Traveling to ${airName} (${airCode})`);
     }).catch(function (response) {
-    console.error(response);
+        console.error(response);
     });
 }
+
+
 
 // origin must be 3 Letter acroymn of Airport
 function cheapestFlights(airport) {
@@ -83,4 +97,5 @@ function cheapestFlights(airport) {
     console.error(response);
     });
 }
+
 
