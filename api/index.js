@@ -116,6 +116,9 @@ app.listen(PORT, hostname, (req, res) => {
     console.log(`Server running at http://${hostname}:${PORT}/`);
 })
 
+// Export the Express API
+module.exports = app
+
 /*
 // origin and destination must be 3 number codes
 function cheapestFlights() {
