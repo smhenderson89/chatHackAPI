@@ -1,0 +1,68 @@
+
+    headers: {
+      date: 'Sun,
+    30 Apr 2023 03: 15: 39 GMT',
+      'content-type': 'application/vnd.amadeus+json',
+      'content-length': '185',
+      connection: 'close',
+      'ama-internal-message-version': '14.1',
+      'ama-request-id': '000130XOBTWRQ3',
+      'ama-gateway-request-id': 'rrt-05b2ca2c82a5e6ccb-b-de-1009-191502055-1',
+      'access-control-allow-headers': 'origin, x-requested-with, accept, Content-Type, Authorization',
+      'access-control-max-age': '3628800',
+      'access-control-allow-methods': '*',
+      server: 'Amadeus',
+      'access-control-allow-origin': '*'
+},
+    statusCode: 400,
+    request: Request {
+      host: 'test.api.amadeus.com',
+      port: 443,
+      ssl: true,
+      scheme: 'https',
+      verb: 'GET',
+      path: '/v2/shopping/flight-offers',
+      params: [Object
+    ],
+      queryPath: '/v2/shopping/flight-offers?originLocationCode=SFO&destinationLocationCode=123&departureDate=2023-08-01&adults=2',
+      bearerToken: '43v6kSvMA9QLA5AmNfdyVqmhXzuX',
+      clientVersion: '8.0.0',
+      languageVersion: '16.17.0',
+      appId: null,
+      appVersion: null,
+      headers: [Object
+    ],
+      ListHTTPOverride: [Array
+    ]
+},
+    body: '{
+    "errors": [
+        {
+            "status": 400,
+            "code": 477,
+            "title": "INVALID FORMAT",
+            "detail": "destinationLocationCode must be a 3-letter code",
+            "source": {
+                "pointer": "destinationLocationCode",
+                "example": "LON"
+            }
+        }
+    ]
+}',
+    result: { errors: [Array
+    ]
+},
+    data: undefined,
+    parsed: true
+},
+  description: [
+{
+      status: 400,
+      code: 477,
+      title: 'INVALID FORMAT',
+      detail: 'destinationLocationCode must be a 3-letter code',
+      source: [Object
+    ]
+}
+],
+  code: 'ClientError'
