@@ -43,65 +43,71 @@ app.get('/test', (req, res) => {
     res.send('This is a test')
 })
 
-app.get('/nearbyAirport/:city', (req, res) => {
+app.get('/AirCode/:city', async (req, res) => {
     let city = req.params.city
-    let airportInfo = nearbyAirport(city)
-    res.status(200).json(airportInfo);
+    console.log(`Searched City Name: ${city}`)
+
+    // Amadeus API call
+    amadeus.referenceData.locations.get({
+        keyword: city,
+        subType: Amadeus.location.airport
+        }).then(function (response) {
+            let data = response.data[0];
+            let airCode = data.iataCode;
+            let airName = data.name
+            returnData = [airCode, airName]
+            console.log(`Information found, ${returnData}`)
+            res.status(200).json({
+                'Status': true,
+                'data' : returnData})
+        }).catch(function (response) {
+            // console.log(response)
+            res.status(404).json({
+                'Status': false,
+                'data' : 'Airport not found'
+            })
+        });
 })
 
 app.get('/flights', async (req, res) => {
-    // origin must be 3 Letter acroymn of Airport 
-    function cheapestFlights() {
-        return new Promise(resolve => {
-        // Find the cheapest flights from SFO to DEL
-            amadeus.shopping.flightOffersSearch.get({
-                originLocationCode: 'SFO',
-                destinationLocationCode: 'DEL',
-                departureDate: '2023-08-01',
-                adults: '2'
-            }).then(function (response) {
-                // console.log(response);
-                console.log('Promise for API results')
-                return response
-            }).catch(function (response) {
-                console.error(response);
-            });
-        })
-    }
-
-    let flights = await cheapestFlights()
-    console.log('flights promise returned')
-    console.log(flights)
-
-    // let numberFlights = flights.meta.count
-    // console.log(`Number of flights: ${numberFlights}`)
-    res.sendStatus(200)
-    
+    amadeus.shopping.flightOffersSearch.get({
+        originLocationCode: 'SFO',
+        destinationLocationCode: 'DEL',
+        departureDate: '2023-08-01',
+        adults: '2'
+    }).then(function (response) {
+        // console.log(response);
+        // Grab next 5 flights in order
+        let flightCount = response.result.meta.count
+        console.log(flightCount)
+        res.status(200).json(flightCount)
+    }).catch(function (response) {
+        console.error(response);
+        res.status(404)
+    });
 })
 
 app.listen(PORT, hostname, (req, res) => {
     console.log(`Server running at http://${hostname}:${PORT}/`);
 })
 
-function nearbyAirport(location) {
-
-    console.log(`Searched City Name: ${location}`)
-
-    // Which airport is nearby enter city name 
-    amadeus.referenceData.locations.get({
-    keyword: location,
-    subType: Amadeus.location.airport
+// origin and destination must be 3 number codes
+function cheapestFlights() {
+// Find the cheapest flights from SFO to DEL
+    amadeus.shopping.flightOffersSearch.get({
+        originLocationCode: 'SFO',
+        destinationLocationCode: 'SAN',
+        departureDate: '2023-08-01',
+        adults: '2'
     }).then(function (response) {
-        let data = response.data[0];
-        let airCode = data.iataCode;
-        let airName = data.name
-        console.log(`Traveling to ${airName} (${airCode})`);
-        return airName, airCode
+        // console.log(response);
+        
+
+        
+
+        console.log('Promise for API results')
+        return response
     }).catch(function (response) {
         console.error(response);
     });
 }
-
-
-
-
