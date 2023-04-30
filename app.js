@@ -116,6 +116,7 @@ app.listen(PORT, hostname, (req, res) => {
     console.log(`Server running at http://${hostname}:${PORT}/`);
 })
 
+/*
 // origin and destination must be 3 number codes
 function cheapestFlights() {
 // Find the cheapest flights from SFO to DEL
@@ -136,3 +137,4 @@ function cheapestFlights() {
         console.error(response);
     });
 }
+*/
