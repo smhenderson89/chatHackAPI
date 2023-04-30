@@ -4,12 +4,11 @@ require('dotenv').config()
 // Boilerplate info
 const express = require('express');
 var cors = require('cors');
-// var bodyParser =  require('body-parser')
+var bodyParser =  require('body-parser')
 app = express();
 
-// Body Parser
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: false,}));
 
 // Console log hosting info
 var hostname = process.env.YOUR_HOST || "127.0.0.1";
@@ -17,10 +16,7 @@ var PORT = process.env.PORT || 4000;
 
 
 // CORS
-app.use(cors())
-app.options('*', cors(
-  {origin: "http://127.0.0.1:5500"}
-))
+app.use(cors({ origin: "*" }));
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*"); 
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -41,6 +37,11 @@ app.get('/', (req, res) => {
 
 app.get('/test', (req, res) => {
     res.send('This is a test')
+})
+
+app.post('/body', (req, res) => {
+    console.log(req.body)
+    res.status(200).json(req.body);
 })
 
 app.get('/AirCode/:city', async (req, res) => {
@@ -70,20 +71,44 @@ app.get('/AirCode/:city', async (req, res) => {
 })
 
 app.get('/flights', async (req, res) => {
+    
+    startCode = req.body.start // Must be 3 Letter Code
+    endCode = req.body.end // Must be 3 Letter Code
+    date = req.body.date // Must be YYYY-MM-DD Format
+
+    // Amaedus API call for Flight
     amadeus.shopping.flightOffersSearch.get({
-        originLocationCode: 'SFO',
-        destinationLocationCode: 'DEL',
-        departureDate: '2023-08-01',
+        originLocationCode: startCode,
+        destinationLocationCode: endCode,
+        departureDate: date,
         adults: '2'
     }).then(function (response) {
         // console.log(response);
-        // Grab next 5 flights in order
+
+        // Grab next 5 flights in order of results to reduce 
+        // Down list of flights
         let flightCount = response.result.meta.count
-        console.log(flightCount)
-        res.status(200).json(flightCount)
+        let flightOptions = response.result.data;
+        let trimFlights = [];
+        if (flightCount >= 5) {
+            for (let i = 0; i < 5; i++) {
+                trimFlights.push(flightOptions[i])
+            }
+        } else {
+            trimFlights = response.result.data
+        }
+
+        console.log(trimFlights)
+        res.status(200).json({
+            'Status': true,
+            'data' : trimFlights})
     }).catch(function (response) {
+        let error = response.description
         console.error(response);
-        res.status(404)
+        res.status(404).json({
+            'Status' : false,
+            'data' : 'Invalid city code'
+        })
     });
 })
 
