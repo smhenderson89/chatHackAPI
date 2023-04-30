@@ -45,6 +45,7 @@ app.post('/body', (req, res) => {
 })
 
 app.get('/AirCode/:city', async (req, res) => {
+    //City must be a string
     let city = req.params.city
     console.log(`Searched City Name: ${city}`)
 
