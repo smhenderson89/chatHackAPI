@@ -27,7 +27,6 @@ app.use(function(req, res, next) {
   next();
 });
 
-
 // Amadeus Info
 var Amadeus = require('amadeus');
 
@@ -44,58 +43,71 @@ app.get('/test', (req, res) => {
     res.send('This is a test')
 })
 
-// Test arguments
-app.post('/body', (req, res) => {
-    var bodyTest = req.body
-    console.log(bodyTest);
-});
+app.get('/AirCode/:city', async (req, res) => {
+    let city = req.params.city
+    console.log(`Searched City Name: ${city}`)
 
-app.get('/nearbyAirport', (req, res) => {
-    console.log(req.body);
-    let city = req.body.city
-    nearbyAirport(city)
+    // Amadeus API call
+    amadeus.referenceData.locations.get({
+        keyword: city,
+        subType: Amadeus.location.airport
+        }).then(function (response) {
+            let data = response.data[0];
+            let airCode = data.iataCode;
+            let airName = data.name
+            returnData = [airCode, airName]
+            console.log(`Information found, ${returnData}`)
+            res.status(200).json({
+                'Status': true,
+                'data' : returnData})
+        }).catch(function (response) {
+            // console.log(response)
+            res.status(404).json({
+                'Status': false,
+                'data' : 'Airport not found'
+            })
+        });
 })
 
-app.get('/cheapest', (req, res) => {
-    cheapestFlights(origin)
+app.get('/flights', async (req, res) => {
+    amadeus.shopping.flightOffersSearch.get({
+        originLocationCode: 'SFO',
+        destinationLocationCode: 'DEL',
+        departureDate: '2023-08-01',
+        adults: '2'
+    }).then(function (response) {
+        // console.log(response);
+        // Grab next 5 flights in order
+        let flightCount = response.result.meta.count
+        console.log(flightCount)
+        res.status(200).json(flightCount)
+    }).catch(function (response) {
+        console.error(response);
+        res.status(404)
+    });
 })
 
 app.listen(PORT, hostname, (req, res) => {
     console.log(`Server running at http://${hostname}:${PORT}/`);
 })
 
-function nearbyAirport(location) {
-
-    console.log(`Searched City Name: ${location}`)
-
-    // Which airport is nearby enter city name 
-    amadeus.referenceData.locations.get({
-    keyword: location,
-    subType: Amadeus.location.airport
+// origin and destination must be 3 number codes
+function cheapestFlights() {
+// Find the cheapest flights from SFO to DEL
+    amadeus.shopping.flightOffersSearch.get({
+        originLocationCode: 'SFO',
+        destinationLocationCode: 'SAN',
+        departureDate: '2023-08-01',
+        adults: '2'
     }).then(function (response) {
-        let data = response.data[0];
-        let airCode = data.iataCode;
-        let airName = data.name
-        console.log(`Traveling to ${airName} (${airCode})`);
+        // console.log(response);
+        
+
+        
+
+        console.log('Promise for API results')
+        return response
     }).catch(function (response) {
         console.error(response);
     });
 }
-
-
-
-// origin must be 3 Letter acroymn of Airport
-function cheapestFlights(airport) {
-    
-    // Find cheapest destinations from Madrid => MAD
-    amadeus.shopping.flightDestinations.get({
-        origin: origin
-    }).then(function (response) {
-        console.log(response);
-        res.send(response)
-    }).catch(function (response) {
-    console.error(response);
-    });
-}
-
-
