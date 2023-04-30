@@ -16,8 +16,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "nodemon": "^2.0.22",
-    "yarn": "^1.22.19"
+    "nodemon": "^2.0.22"
   },
   "repository": "https://github.com/smhenderson89/chatHackAPI.git",
   "private": false
